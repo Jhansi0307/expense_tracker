@@ -6,7 +6,6 @@ alembic
 python-jose[cryptography]
 passlib[bcrypt]
 pydantic==1.10.15
-pydantic-settings==2.2.1
 python-dotenv
 pandas
 python-multipart
