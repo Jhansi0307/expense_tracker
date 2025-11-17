@@ -9,3 +9,4 @@ pydantic==1.10.15
 python-dotenv
 pandas
 python-multipart
+pydantic[email]
