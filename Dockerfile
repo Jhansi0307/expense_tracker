@@ -1,29 +1,21 @@
+# Use Python 3.11
 FROM python:3.11-slim
 
-# Prevent python from buffering logs
-ENV PYTHONUNBUFFERED=1
-
-# Create directory
+# Set work directory
 WORKDIR /app
 
-# Install system dependencies (needed for psycopg2 & pandas)
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpq-dev \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
+# Install system dependencies (psycopg2 dependencies)
+RUN apt-get update && apt-get install -y gcc libpq-dev
 
-# Copy requirement file
+# Install Python dependencies
 COPY requirements.txt .
-
-# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy code
 COPY . .
 
-# Expose port used by uvicorn
-EXPOSE 10000
+# Run Alembic migrations before starting the app
+RUN alembic upgrade head
 
-# Run the FastAPI app
+# Start FastAPI server
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "10000"]
