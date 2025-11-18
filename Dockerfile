@@ -1,21 +1,56 @@
-# Use Python 3.11
+# -------------------------
+# Base Image
+# -------------------------
 FROM python:3.11-slim
 
-# Set work directory
+# -------------------------
+# Set Work Directory
+# -------------------------
 WORKDIR /app
 
-# Install system dependencies (psycopg2 dependencies)
-RUN apt-get update && apt-get install -y gcc libpq-dev
+# -------------------------
+# Install system dependencies
+# (required by psycopg2-binary + bcrypt)
+# -------------------------
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
+# -------------------------
 # Install Python dependencies
+# -------------------------
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy code
+# -------------------------
+# Copy project files
+# -------------------------
 COPY . .
 
-# Run Alembic migrations before starting the app
-RUN alembic upgrade head
+# -------------------------
+# Make Alembic config accessible
+# -------------------------
+COPY alembic.ini /app/alembic.ini
+COPY alembic /app/alembic
 
-# Start FastAPI server
+# -------------------------
+# Add entrypoint script
+# -------------------------
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
+
+# -------------------------
+# Expose port
+# -------------------------
+EXPOSE 10000
+
+# -------------------------
+# Run entrypoint (runs Alembic first)
+# -------------------------
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+
+# -------------------------
+# Start FastAPI
+# -------------------------
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "10000"]
