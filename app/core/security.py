@@ -1,35 +1,21 @@
 from datetime import datetime, timedelta
 from typing import Optional
-
 from jose import jwt, JWTError
 from passlib.context import CryptContext
-
 from app.core.config import settings
 
-# Use Argon2 instead of bcrypt
-pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
+# Use bcrypt (Render-friendly)
+pwd_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto"
+)
 
-
-# ------------------------
-# PASSWORD HASHING
-# ------------------------
 def get_password_hash(password: str) -> str:
-    """
-    Hash password using Argon2 (no length limits, no truncation needed).
-    """
     return pwd_context.hash(password)
 
-
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """
-    Verify hashed password with Argon2.
-    """
     return pwd_context.verify(plain_password, hashed_password)
 
-
-# ------------------------
-# JWT CREATION
-# ------------------------
 def create_access_token(subject: str, expires_delta: Optional[timedelta] = None) -> str:
     if expires_delta is None:
         expires_delta = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -37,19 +23,11 @@ def create_access_token(subject: str, expires_delta: Optional[timedelta] = None)
     expire = datetime.utcnow() + expires_delta
     payload = {"sub": subject, "exp": expire}
 
-    return jwt.encode(
-        payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
-    )
+    return jwt.encode(payload, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
-
-# ------------------------
-# JWT DECODING
-# ------------------------
 def decode_access_token(token: str) -> Optional[str]:
     try:
-        payload = jwt.decode(
-            token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
-        )
+        payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
         return payload.get("sub")
     except JWTError:
         return None
