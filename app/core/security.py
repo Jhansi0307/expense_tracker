@@ -4,9 +4,9 @@ from jose import jwt, JWTError
 from passlib.context import CryptContext
 from app.core.config import settings
 
-# Use bcrypt (Render-friendly)
+# FIX: use bcrypt_sha256 instead of bcrypt
 pwd_context = CryptContext(
-    schemes=["bcrypt"],
+    schemes=["bcrypt_sha256"],
     deprecated="auto"
 )
 
