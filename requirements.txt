@@ -10,3 +10,4 @@ python-dotenv
 pandas
 python-multipart
 pydantic[email]
+argon2-cffi
