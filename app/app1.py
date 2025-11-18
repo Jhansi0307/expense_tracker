@@ -6,7 +6,8 @@ from datetime import datetime, date
 # ===========================
 # CONFIG
 # ===========================
-API_BASE_URL = "http://127.0.0.1:8000/api/v1"
+API_BASE_URL = "https://expense-tracker-68vh.onrender.com/api/v1"
+
 
 # ===========================
 # SESSION STATE HELPERS
